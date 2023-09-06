@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <!-- 부트스트랩 CSS 추가 -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .completed {
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container mt-5">
+    <h1>Todo List</h1>
+    <div class="input-group mb-3">
+        <input id="newTodo" type="text" class="form-control" placeholder="Enter a new todo" aria-label="Todo" aria-describedby="button-addon2">
+        <div class="input-group-append">
+            <button class="btn btn-outline-primary" type="button" onclick="addTodo()">Add</button>
+        </div>
+    </div>
+
+    <ul id="todoList" class="list-group"></ul>
+</div>
+
+<script th:inline="javascript">
+    const API_URL = /*[[@{/todos}]]*/ '/todos';
+
+    function loadTodos() {
+        fetch(API_URL)
+            .then(response => response.json())
+            .then(todos => {
+                const list = document.getElementById('todoList');
+                list.innerHTML = '';
+                todos.forEach(todo => {
+                    const listItem = document.createElement('li');
+                    listItem.id = `todoItem${todo.id}`;
+                    listItem.innerHTML = `
+                            ${todo.title}
+                            <button onclick="toggleCompleted(${todo.id}, ${todo.completed})">${todo.completed ? 'Unmark' : 'Mark'} as done</button>
+                            <button onclick="deleteTodo(${todo.id})">Delete</button>
+                        `;
+                    listItem.className = todo.completed ? 'completed' : '';
+                    list.appendChild(listItem);
+                });
+            });
+    }
+
+    function addTodo() {
+        const title = document.getElementById('newTodo').value;
+        fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title, completed: false }),
+        }).then(() => {
+            loadTodos();
+            document.getElementById('newTodo').value = '';
+        });
+    }
+
+    function toggleCompleted(id, isCompleted) {
+        fetch(`${API_URL}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ completed: !isCompleted }),
+        }).then(() => {
+            const listItem = document.querySelector(`#todoItem${id}`);
+            if (!isCompleted) {
+                listItem.classList.add('completed');
+            } else {
+                listItem.classList.remove('completed');
+            }
+        });
+    }
+
+
+    function deleteTodo(id) {
+        fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+        }).then(() => {
+            loadTodos();
+        });
+    }
+
+    // 초기 로딩 시 Todo 목록 로드
+    window.onload = loadTodos;
+</script>
+
+<!-- 부트스트랩 JS, Popper.js, jQuery 추가 -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
