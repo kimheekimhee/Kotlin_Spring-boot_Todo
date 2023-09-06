@@ -17,7 +17,13 @@ class TodoController(private val todoService: TodoService) {
 
     @PutMapping("/{id}")
     fun updateTodo(@PathVariable id: Long,
-                   @RequestBody updatedTodo: Todo) = todoService.updateTodo(id, updatedTodo)
+                   @RequestBody updatedTodo: Todo): Todo {
+        val currentTodo = todoService.getTodoById(id)
+        currentTodo.title = updatedTodo.title
+        currentTodo.completed = updatedTodo.completed
+        return todoService.updateTodo(id, currentTodo)
+    }
+
 
     @DeleteMapping("/{id}")
     fun deleteTodo(@PathVariable id: Long) = todoService.deleteTodo(id)
