@@ -1,3 +1,5 @@
+![Animation](https://github.com/kimheekimhee/Kotlin_Spring-boot_Todo/assets/108660653/0c0b464d-096f-42db-a85d-08beeb5b2489)
+
 # Kotlin Spring Boot To-Do 프로젝트
 
 ## 프로젝트 개요
